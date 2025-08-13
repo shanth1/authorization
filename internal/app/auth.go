@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	httphandler "github.com/shanth1/authorization/internal/adapters/input/http"
 	"github.com/shanth1/authorization/internal/adapters/output/repository/inmemory"
@@ -23,6 +24,14 @@ func Run(ctx, shutdownCtx context.Context, cfg *authcfg.Config) {
 
 	router := gin.New()
 	router.Use(gin.Recovery())
+
+	// TODO: cors config
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true // TODO: config
+	config.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"}
+	config.AllowHeaders = []string{"Origin", "Content-Type", "Accept", "Authorization", "X-Internal-Secret"}
+	router.Use(cors.New(config))
+
 	httpHandler := httphandler.NewHandler(authSvc)
 	httpHandler.InitRoutes(router, cfg.HTTPServer.APIToken)
 

@@ -14,7 +14,7 @@ type Config struct {
 type HTTPServer struct {
 	Address  string
 	Timeout  time.Duration
-	APIToken string `env:"HTTP_SERVER_API_TOKEN"`
+	APIToken string `env:"API_TOKEN"`
 }
 
 type Telegram struct {

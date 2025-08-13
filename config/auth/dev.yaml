@@ -2,7 +2,7 @@ env: development
 
 http_server:
     address: ":8080"
-    timeout: 5
+    timeout: 5s
     idle_timeout: 60s
 
 jwt:

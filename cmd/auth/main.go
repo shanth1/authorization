@@ -21,8 +21,9 @@ type startCfg struct {
 func main() {
 	logger := log.New(log.WithService("auth"))
 
-	ctx, shutdownCtx, cancel := ctx.WithGracefulShutdown(5 * time.Second)
+	ctx, shutdownCtx, cancel, shutdownCancel := ctx.WithGracefulShutdown(5 * time.Second)
 	defer cancel()
+	defer shutdownCancel()
 
 	var startCfg startCfg
 	if err := flags.RegisterFromStruct(&startCfg); err != nil {
