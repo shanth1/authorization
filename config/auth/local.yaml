@@ -1,0 +1,10 @@
+env: local
+
+http_server:
+    address: ":8080"
+    timeout: 5
+    idle_timeout: 60s
+
+jwt:
+    access_ttl: 15m
+    refresh_ttl: 720h
