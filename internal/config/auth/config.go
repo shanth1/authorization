@@ -18,7 +18,8 @@ type HTTPServer struct {
 }
 
 type Telegram struct {
-	BotName string `env:"TELEGRAM_BOT_NAME"`
+	BotName  string `env:"TELEGRAM_BOT_NAME"`
+	BotToken string `env:"TELEGRAM_BOT_TOKEN"`
 }
 
 type Jwt struct {

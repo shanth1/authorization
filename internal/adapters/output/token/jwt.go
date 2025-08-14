@@ -1,53 +1,71 @@
 package token
 
 import (
-	"fmt"
+	"errors"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/shanth1/authorization/internal/core/domain"
-	"github.com/shanth1/authorization/internal/core/ports"
 )
 
 type JWTService struct {
-	secretKey  []byte
-	accessTTL  time.Duration
-	refreshTTL time.Duration
+	signingKey []byte
 }
 
-func NewJWTService(secretKey string, accessTTL, refreshTTL time.Duration) ports.TokenService {
-	return &JWTService{
-		secretKey:  []byte(secretKey),
-		accessTTL:  accessTTL,
-		refreshTTL: refreshTTL,
-	}
+func NewJWTService(key string) *JWTService {
+	return &JWTService{signingKey: []byte(key)}
 }
 
-func (s *JWTService) GenerateTokens(userID string) (*domain.Tokens, error) {
+func (s *JWTService) GenerateTokens(
+	user *domain.User,
+	client *domain.OIDCClient,
+	nonce string,
+) (*domain.Tokens, error) {
+	now := time.Now()
+	expiresIn := int64(3600) // 1 час
+
 	// Access Token
-	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": userID,
-		"exp": time.Now().Add(s.accessTTL).Unix(),
-		"typ": "access",
-	})
-	accessTokenString, err := accessToken.SignedString(s.secretKey)
-	if err != nil {
-		return nil, fmt.Errorf("failed to sign access token: %w", err)
+	accessClaims := &domain.TokenClaims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(now.Add(time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(now),
+		},
+		UserID:   user.ID,
+		ClientID: client.ID,
+		Scopes:   []string{"openid", "profile"},
 	}
 
-	// Refresh Token
-	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": userID,
-		"exp": time.Now().Add(s.refreshTTL).Unix(),
-		"typ": "refresh",
-	})
-	refreshTokenString, err := refreshToken.SignedString(s.secretKey)
+	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, accessClaims)
+	accessSigned, err := accessToken.SignedString(s.signingKey)
 	if err != nil {
-		return nil, fmt.Errorf("failed to sign refresh token: %w", err)
+		return nil, err
+	}
+
+	// ID Token
+	idClaims := &domain.TokenClaims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(now.Add(time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(now),
+		},
+		UserID:   user.ID,
+		ClientID: client.ID,
+		Nonce:    nonce,
+	}
+
+	idToken := jwt.NewWithClaims(jwt.SigningMethodHS256, idClaims)
+	idSigned, err := idToken.SignedString(s.signingKey)
+	if err != nil {
+		return nil, err
 	}
 
 	return &domain.Tokens{
-		AccessToken:  accessTokenString,
-		RefreshToken: refreshTokenString,
+		AccessToken: accessSigned,
+		IDToken:     idSigned,
+		ExpiresIn:   expiresIn,
 	}, nil
+}
+
+func (s *JWTService) ParseAccessToken(token string) (*domain.TokenClaims, error) {
+	// Реализация валидации токена
+	return nil, errors.New("not implemeted")
 }

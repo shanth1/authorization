@@ -1,4 +1,3 @@
-// internal/core/ports/cache.go
 package ports
 
 import (
@@ -8,14 +7,36 @@ import (
 	"github.com/shanth1/authorization/internal/core/domain"
 )
 
+// StateCache управляет OAuth state-параметрами
 type StateCache interface {
-	SetState(ctx context.Context, key string, expiration time.Duration) error
-	CheckState(ctx context.Context, key string) error
-	DeleteState(ctx context.Context, key string) error
+	// Store сохраняет state с данными авторизации
+	Store(
+		ctx context.Context,
+		state string,
+		data *domain.AuthorizationRequest,
+		exp time.Duration,
+	) error
+
+	// Verify проверяет state и возвращает данные
+	Verify(
+		ctx context.Context,
+		state string,
+	) (*domain.AuthorizationRequest, error)
 }
 
+// SessionCache управляет пользовательскими сессиями
 type SessionCache interface {
-	SetSession(ctx context.Context, key string, tokens *domain.Tokens, expiration time.Duration) error
-	GetSession(ctx context.Context, key string) (*domain.Tokens, error)
-	DeleteSession(ctx context.Context, key string) error
+	// SetTokens сохраняет токены сессии
+	SetTokens(
+		ctx context.Context,
+		sessionID string,
+		tokens *domain.Tokens,
+		exp time.Duration,
+	) error
+
+	// GetTokens возвращает токены сессии
+	GetTokens(
+		ctx context.Context,
+		sessionID string,
+	) (*domain.Tokens, error)
 }

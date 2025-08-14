@@ -7,9 +7,11 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	httphandler "github.com/shanth1/authorization/internal/adapters/input/http"
+	"github.com/shanth1/authorization/internal/adapters/output/auth/telegram"
 	"github.com/shanth1/authorization/internal/adapters/output/repository/inmemory"
 	"github.com/shanth1/authorization/internal/adapters/output/token"
 	authcfg "github.com/shanth1/authorization/internal/config/auth"
+	"github.com/shanth1/authorization/internal/core/ports"
 	"github.com/shanth1/authorization/internal/core/service"
 	"github.com/shanth1/gotools/log"
 )
@@ -17,10 +19,17 @@ import (
 func Run(ctx, shutdownCtx context.Context, cfg *authcfg.Config) {
 	logger := log.FromContext(ctx)
 
-	userRepo := inmemory.NewInMemoryUserRepository()
-	cache := inmemory.NewInMemoryCache()
-	tokenSvc := token.NewJWTService(cfg.JWT.SecretKey, cfg.JWT.AccessTTL, cfg.JWT.RefreshTTL)
-	authSvc := service.NewAuthService(userRepo, cache, cache, tokenSvc, cfg.Telegram.BotName)
+	telegramProvider, err := telegram.NewTelegramProvider(cfg.Telegram.BotToken, cfg.Telegram.BotName)
+	if err != nil {
+		logger.Fatal().Err(err).Msg("new telegram provider")
+	}
+
+	userRepo := inmemory.NewMemoryUserRepository()
+	_ = inmemory.NewInMemoryCache()
+
+	_ = token.NewJWTService(cfg.JWT.SecretKey)
+	service.NewOIDCService(nil, nil, nil, nil)
+	_ = service.NewAuthService(userRepo, nil, []ports.AuthProvider{telegramProvider})
 
 	router := gin.New()
 	router.Use(gin.Recovery())
@@ -32,8 +41,8 @@ func Run(ctx, shutdownCtx context.Context, cfg *authcfg.Config) {
 	config.AllowHeaders = []string{"Origin", "Content-Type", "Accept", "Authorization", "X-Internal-Secret"}
 	router.Use(cors.New(config))
 
-	httpHandler := httphandler.NewHandler(authSvc)
-	httpHandler.InitRoutes(router, cfg.HTTPServer.APIToken)
+	httpHandler := httphandler.NewOIDCHandlers(nil, nil, nil, nil, nil)
+	httpHandler.RegisterRoutes(router)
 
 	srv := &http.Server{
 		Addr:         cfg.HTTPServer.Address,
