@@ -1,4 +1,4 @@
-package authcfg
+package config
 
 import "time"
 
@@ -7,7 +7,6 @@ import "time"
 type Config struct {
 	Env        string
 	HTTPServer HTTPServer `mapstructure:"http_server"`
-	Telegram   Telegram
 	JWT        Jwt
 }
 
@@ -15,10 +14,6 @@ type HTTPServer struct {
 	Address  string
 	Timeout  time.Duration
 	APIToken string `env:"API_TOKEN"`
-}
-
-type Telegram struct {
-	BotName string `env:"TELEGRAM_BOT_NAME"`
 }
 
 type Jwt struct {

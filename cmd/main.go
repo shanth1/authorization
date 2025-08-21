@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/shanth1/authorization/internal/app"
-	authcfg "github.com/shanth1/authorization/internal/config/auth"
+	"github.com/shanth1/authorization/internal/config"
 	"github.com/shanth1/gotools/conf"
 	"github.com/shanth1/gotools/ctx"
 	"github.com/shanth1/gotools/env"
@@ -31,7 +31,7 @@ func main() {
 	}
 	flag.Parse()
 
-	cfg := &authcfg.Config{}
+	cfg := &config.Config{}
 	if err := env.LoadIntoStruct(startCfg.EnvPath, cfg); err != nil {
 		logger.Fatal().Err(err).Msg("Load env into struct")
 	}
