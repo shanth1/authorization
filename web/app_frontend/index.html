@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ru">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Приложение</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				max-width: 600px;
+				margin: 0 auto;
+				padding: 20px;
+			}
+			h1 {
+				text-align: center;
+			}
+			#login-btn {
+				display: block;
+				width: 100%;
+				padding: 10px;
+				background: #007bff;
+				color: white;
+				border: none;
+				cursor: pointer;
+			}
+			#login-btn:hover {
+				background: #0056b3;
+			}
+			#user-info {
+				margin-top: 20px;
+				display: none;
+			}
+			#logout-btn {
+				width: 100%;
+				padding: 10px;
+				background: #dc3545;
+				color: white;
+				border: none;
+				cursor: pointer;
+			}
+			#logout-btn:hover {
+				background: #c82333;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Добро пожаловать в приложение</h1>
+		<button id="login-btn">Войти</button>
+		<div id="user-info">
+			<h2>Информация о пользователе</h2>
+			<pre id="user-data"></pre>
+			<button id="logout-btn">Выйти</button>
+		</div>
+		<script src="script.js"></script>
+	</body>
+</html>
