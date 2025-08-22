@@ -11,6 +11,7 @@ import (
 
 func Run(ctx, shutdownCtx context.Context, cfg *config.Config) {
 	logger := log.FromContext(ctx)
+	logger = logger.With(log.Str("env", cfg.Env))
 
 	httpHandler := httphandler.New(cfg)
 	router := httpHandler.SetupRouter()

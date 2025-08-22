@@ -21,7 +21,7 @@ func (h *httpHandler) SetupRouter() *gin.Engine {
 		gin.Logger(),
 	)
 
-	e.Static("/", "./static")
+	e.Static("/static", "./static")
 
 	api := e.Group("/api")
 	h.setupV1Routes(api)
