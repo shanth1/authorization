@@ -1,5 +1,9 @@
 const HomePage = () => {
-	return <div>{/* Empty info page; fill later */}</div>;
+	return (
+		<div className="container">
+			<h1>Home</h1>
+		</div>
+	);
 };
 
 export default HomePage;

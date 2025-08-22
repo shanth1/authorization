@@ -2,7 +2,7 @@ import RegistrationForm from "../../../features/registration/ui/RegistrationForm
 
 const RegistrationPage = () => {
 	return (
-		<div>
+		<div className="container">
 			<h1>Registration</h1>
 			<RegistrationForm />
 		</div>

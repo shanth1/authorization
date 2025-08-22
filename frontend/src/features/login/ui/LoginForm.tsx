@@ -1,8 +1,8 @@
 import { useState } from "react";
 import api from "../../../shared/lib/api";
+import "./LoginForm.css";
 
 const LoginForm = ({ clientId }: { clientId?: string }) => {
-	// Optional clientId for authorize context
 	const [login, setLogin] = useState("");
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState("");
@@ -15,9 +15,8 @@ const LoginForm = ({ clientId }: { clientId?: string }) => {
 				password,
 				client_id: clientId,
 			});
-			// Assume sets cookie or localStorage token
-			localStorage.setItem("token", response.data.token); // Or use cookies
-			window.location.href = "/profile"; // Or back to client redirect_uri if OAuth
+			localStorage.setItem("token", response.data.token);
+			window.location.href = "/profile";
 		} catch (err) {
 			setError("Login failed");
 		}
@@ -39,7 +38,7 @@ const LoginForm = ({ clientId }: { clientId?: string }) => {
 				onChange={(e) => setPassword(e.target.value)}
 				required
 			/>
-			{error && <p>{error}</p>}
+			{error && <p className="error">{error}</p>}
 			<button type="submit">Login</button>
 		</form>
 	);

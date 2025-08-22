@@ -1,6 +1,6 @@
 import { useState } from "react";
 import api from "../../../shared/lib/api";
-// Add form validation library like react-hook-form if needed for best practices
+import "../../login/ui/LoginForm.css";
 
 const RegistrationForm = () => {
 	const [name, setName] = useState("");
@@ -18,7 +18,6 @@ const RegistrationForm = () => {
 		}
 		try {
 			await api.post("/register", { name, login, email, password });
-			// Redirect to /login or home after success
 			window.location.href = "/login";
 		} catch (err) {
 			setError("Registration failed");
@@ -62,7 +61,7 @@ const RegistrationForm = () => {
 				onChange={(e) => setConfirmPassword(e.target.value)}
 				required
 			/>
-			{error && <p>{error}</p>}
+			{error && <p className="error">{error}</p>}
 			<button type="submit">Register</button>
 		</form>
 	);

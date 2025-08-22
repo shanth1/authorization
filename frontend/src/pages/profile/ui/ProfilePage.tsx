@@ -1,12 +1,9 @@
-import RegistrationForm from "../../../features/registration/ui/RegistrationForm";
-
-const RegistrationPage = () => {
+const ProfilePage = () => {
 	return (
-		<div>
-			<h1>Registration</h1>
-			<RegistrationForm />
+		<div className="container">
+			<h1>Profile</h1>
 		</div>
 	);
 };
 
-export default RegistrationPage;
+export default ProfilePage;

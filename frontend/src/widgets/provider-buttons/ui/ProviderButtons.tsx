@@ -1,6 +1,7 @@
 import type { Provider } from "../../../entities/provider/types";
 import { handleOAuthRedirect } from "../../../features/auth/lib/handleOAuthRedirect";
 import LoginForm from "../../../features/login/ui/LoginForm";
+import "./ProviderButtons.css";
 
 const ProviderButtons = ({
 	providers,
@@ -10,7 +11,7 @@ const ProviderButtons = ({
 	clientId: string;
 }) => {
 	return (
-		<div>
+		<div className="provider-buttons">
 			{providers.map((provider) => {
 				if (provider === "login_password") {
 					return <LoginForm key={provider} clientId={clientId} />;
@@ -18,6 +19,7 @@ const ProviderButtons = ({
 				return (
 					<button
 						key={provider}
+						data-provider={provider}
 						onClick={() => handleOAuthRedirect(provider, clientId)}
 					>
 						Login with{" "}

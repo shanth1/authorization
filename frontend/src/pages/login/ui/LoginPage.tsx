@@ -2,7 +2,7 @@ import LoginForm from "../../../features/login/ui/LoginForm";
 
 const LoginPage = () => {
 	return (
-		<div>
+		<div className="container">
 			<h1>Login</h1>
 			<LoginForm />
 		</div>

@@ -2,8 +2,8 @@ import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getProviders } from "../../../features/auth/api/getProviders";
-import Loader from "../../../widgets/loader/ui/Loader.tsx";
-import ProviderButtons from "../../../widgets/provider-buttons/ui/ProviderButtons.tsx";
+import Loader from "../../../widgets/loader/ui/Loader";
+import ProviderButtons from "../../../widgets/provider-buttons/ui/ProviderButtons";
 
 const AuthorizePage = () => {
 	const [searchParams] = useSearchParams();
@@ -12,7 +12,7 @@ const AuthorizePage = () => {
 
 	useEffect(() => {
 		if (!clientId) {
-			navigate("/"); // Redirect if no client_id
+			navigate("/");
 		}
 	}, [clientId, navigate]);
 
@@ -22,16 +22,15 @@ const AuthorizePage = () => {
 		enabled: !!clientId,
 	});
 
-	if (!clientId) return null; // Handled by useEffect
+	if (!clientId) return null;
 
 	if (isLoading) return <Loader />;
 
 	return (
-		<div>
+		<div className="container">
 			<h1>Authorize</h1>
 			<ProviderButtons providers={providers || []} clientId={clientId} />
-			<a href="/registration">Register new account</a>{" "}
-			{/* Link to registration from authorize */}
+			<a href="/registration">Register new account</a>
 		</div>
 	);
 };
