@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
+	"github.com/shanth1/authorization/internal/adapters/input/httphandler"
 	"github.com/shanth1/authorization/internal/config"
 	"github.com/shanth1/gotools/log"
 )
@@ -12,10 +12,8 @@ import (
 func Run(ctx, shutdownCtx context.Context, cfg *config.Config) {
 	logger := log.FromContext(ctx)
 
-	router := gin.New()
-	router.Use(gin.Recovery())
-
-	// TODO: http handler
+	httpHandler := httphandler.New(cfg)
+	router := httpHandler.SetupRouter()
 
 	srv := &http.Server{
 		Addr:         cfg.HTTPServer.Address,
