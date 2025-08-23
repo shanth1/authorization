@@ -25,6 +25,8 @@ func main() {
 	defer cancel()
 	defer shutdownCancel()
 
+	ctx = log.NewContext(ctx, logger)
+
 	var startCfg startCfg
 	if err := flags.RegisterFromStruct(&startCfg); err != nil {
 		logger.Fatal().Err(err).Msg("Register flags from struct")
@@ -39,8 +41,6 @@ func main() {
 	if err := conf.Load(startCfg.ConfigPath, cfg); err != nil {
 		logger.Fatal().Err(err).Msg("Load config")
 	}
-
-	ctx = log.NewContext(ctx, logger)
 
 	app.Run(ctx, shutdownCtx, cfg)
 }
