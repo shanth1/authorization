@@ -5,9 +5,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 	try {
 		const config = await Config.load();
-		console.log("App initialized with config:", config);
+		window.config = config;
 
-		Storage.saveConfig(config);
+		console.log("App initialized with config:", config);
 
 		UI.createButtons();
 		UI.showApp();
