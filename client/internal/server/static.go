@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func serveStatic(w http.ResponseWriter, r *http.Request) {
+func (h *handler) serveStatic(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 	if path == "/" {
 		path = "/index.html"

@@ -14,7 +14,7 @@ func Run(ctx, shutdownCtx context.Context, cfg *config.Config) {
 
 	server := &http.Server{
 		Addr:    cfg.Address,
-		Handler: server.NewHandler(),
+		Handler: server.NewHandler(cfg),
 	}
 	go func() {
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {

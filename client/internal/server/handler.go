@@ -3,21 +3,27 @@ package server
 import (
 	"net/http"
 	"strings"
+
+	"github.com/shanth1/authorization/client/internal/config"
 )
 
-type handler struct{}
-
-func NewHandler() *handler {
-	return &handler{}
+type handler struct {
+	cfg *config.Config
 }
 
-func (s *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func NewHandler(cfg *config.Config) *handler {
+	return &handler{
+		cfg: cfg,
+	}
+}
+
+func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 
 	if strings.HasPrefix(path, "/api") {
-		handleAPI(w, r)
+		h.handleAPI(w, r)
 		return
 	}
 
-	serveStatic(w, r)
+	h.serveStatic(w, r)
 }
