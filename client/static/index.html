@@ -4,53 +4,19 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Client</title>
-		<style>
-			body {
-				font-family: Arial, sans-serif;
-				max-width: 600px;
-				margin: 0 auto;
-				padding: 20px;
-			}
-			h1 {
-				text-align: center;
-			}
-			#login-btn {
-				display: block;
-				width: 100%;
-				padding: 10px;
-				background: #007bff;
-				color: white;
-				border: none;
-				cursor: pointer;
-			}
-			#login-btn:hover {
-				background: #0056b3;
-			}
-			#user-info {
-				margin-top: 20px;
-				display: none;
-			}
-			#logout-btn {
-				width: 100%;
-				padding: 10px;
-				background: #dc3545;
-				color: white;
-				border: none;
-				cursor: pointer;
-			}
-			#logout-btn:hover {
-				background: #c82333;
-			}
-		</style>
+		<link rel="stylesheet" href="styles.css" />
 	</head>
 	<body>
-		<h1>Relying Party Cient</h1>
-		<button id="login-btn">Login</button>
-		<div id="user-info">
-			<h2>User info</h2>
-			<pre id="user-data"></pre>
-			<button id="logout-btn">Logout</button>
+		<h1>Relying Party Client</h1>
+		<div id="loader" class="loader">Loading configuration...</div>
+		<div id="app-container" class="hidden">
+			<!-- dynamic content -->
 		</div>
-		<script src="script.js"></script>
+
+		<script src="storage.js"></script>
+		<script src="config.js"></script>
+		<script src="auth.js"></script>
+		<script src="ui.js"></script>
+		<script src="app.js"></script>
 	</body>
 </html>

@@ -15,7 +15,7 @@ func (h *handler) handleAPI(w http.ResponseWriter, r *http.Request) {
 
 		config := map[string]string{
 			"authUrl":  h.cfg.AuthURL,
-			"clientID": h.cfg.ClientID,
+			"clientId": h.cfg.ClientID,
 		}
 
 		json.NewEncoder(w).Encode(config)
