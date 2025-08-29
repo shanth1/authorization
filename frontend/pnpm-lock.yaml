@@ -60,6 +60,12 @@ importers:
                 specifier: ^5.4.1
                 version: 5.4.19(@types/node@24.3.0)
 
+    packages/portal:
+        dependencies:
+            "@frontend/shared":
+                specifier: workspace:*
+                version: link:../shared
+
     packages/shared: {}
 
     packages/sso:
