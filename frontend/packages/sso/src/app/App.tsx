@@ -1,18 +1,14 @@
-import { useState } from "react";
-import { Button } from "@frontend/shared/shared/ui/Button";
+import { LoginPage } from "../pages";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-function App() {
-  const [count, setCount] = useState(0);
-
+const App: React.FC = () => {
   return (
-    <>
-      <h1>SSO</h1>
-      <div>
-        <Button>Shared Button</Button>
-        <button onClick={() => setCount((count) => count + 1)}>count is {count}</button>
-      </div>
-    </>
+    <Router>
+      <Routes>
+        <Route path="*" element={<LoginPage />} />
+      </Routes>
+    </Router>
   );
-}
+};
 
 export default App;

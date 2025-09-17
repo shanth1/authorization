@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button } from "@frontend/shared/shared/ui/Button";
+import { Button } from "@frontend/shared/shared/Button";
 
 function App() {
   const [count, setCount] = useState(0);
