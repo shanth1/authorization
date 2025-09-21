@@ -1,7 +1,7 @@
 import { Logo } from "@common/features/Logo";
 import { Card } from "@common/shared/Card";
-import { BasicLogin } from "../../features/BasicLogin/BasicLogin";
-import { Providers } from "../../features/Providers/Providers";
+import { BasicLogin } from "@/features/BasicLogin/BasicLogin";
+import { Providers } from "@/features/Providers/Providers";
 
 interface AuthFormProps {
   providers: string[];

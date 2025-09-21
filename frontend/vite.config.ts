@@ -30,12 +30,15 @@ export default defineConfig(() => {
     throw new Error(`Invalid VITE_PROJECT: ${project}. Must be 'sso' or 'portal'.`);
   }
 
+  const aliases = {
+    "@common": path.resolve(__dirname, "packages/common/src"),
+    "@": path.resolve(__dirname, `packages/${project}/src`),
+  };
+
   return {
     plugins: [react()],
     resolve: {
-      alias: {
-        "@common": path.resolve(__dirname, "packages/common/src"),
-      },
+      alias: aliases,
     },
     root: projects[project].root,
     base: "/",

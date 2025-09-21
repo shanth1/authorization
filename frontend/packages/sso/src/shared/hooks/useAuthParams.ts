@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { AuthParams, AuthState } from "../../entities/auth/model/types";
-import { getValidationErrors } from "../utils/getValidationErrors";
+import { AuthParams, AuthState } from "@/entities/auth/model/types";
+import { getValidationErrors } from "./getValidationErrors";
 
 export const useAuthParams = (): AuthState => {
   const location = useLocation();
