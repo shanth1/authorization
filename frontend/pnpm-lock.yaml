@@ -68,17 +68,17 @@ importers:
 
   packages/portal:
     dependencies:
-      "@frontend/shared":
+      "@common":
         specifier: workspace:*
-        version: link:../shared
+        version: link:../common
 
   packages/shared: {}
 
   packages/sso:
     dependencies:
-      "@frontend/shared":
+      "@common":
         specifier: workspace:*
-        version: link:../shared
+        version: link:../common
 
 packages:
   "@alloc/quick-lru@5.2.0":

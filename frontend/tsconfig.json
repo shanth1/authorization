@@ -17,7 +17,7 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "@frontend/shared/*": ["packages/shared/src/*"]
+      "@common/*": ["packages/common/src/*"]
     },
     "types": ["node"]
   },

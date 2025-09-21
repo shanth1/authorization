@@ -1,5 +1,5 @@
 {
-  "name": "@frontend/sso",
+  "name": "sso",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,6 +10,6 @@
     "preview": "VITE_PROJECT=sso vite preview --config ../../vite.config.ts"
   },
   "dependencies": {
-    "@frontend/shared": "workspace:*"
+    "@common": "workspace:*"
   }
 }

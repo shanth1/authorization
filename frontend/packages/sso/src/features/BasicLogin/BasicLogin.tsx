@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Input } from "@frontend/shared/shared/Input";
+import { Input } from "@common/shared/Input";
 
 export const BasicLogin = () => {
   const [email, setEmail] = useState("");

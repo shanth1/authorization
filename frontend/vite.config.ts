@@ -34,7 +34,7 @@ export default defineConfig(() => {
     plugins: [react()],
     resolve: {
       alias: {
-        "@frontend/shared": path.resolve(__dirname, "packages/shared/src"),
+        "@common": path.resolve(__dirname, "packages/common/src"),
       },
     },
     root: projects[project].root,

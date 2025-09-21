@@ -1,6 +1,6 @@
-import { Loader } from "@frontend/shared/shared/Loader";
-import { ErrorMessage } from "@frontend/shared/shared/ErrorMessage";
-import { PageLayout } from "@frontend/shared/shared/PageLayout";
+import { Loader } from "@common/shared/Loader";
+import { ErrorMessage } from "@common/shared/ErrorMessage";
+import { PageLayout } from "@common/shared/PageLayout";
 import { useAuthParams } from "../shared/hooks/useAuthParams";
 import { AuthForm } from "../widgets/AuthForm/AuthForm";
 
