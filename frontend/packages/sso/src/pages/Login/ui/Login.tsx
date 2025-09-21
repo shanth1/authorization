@@ -5,19 +5,16 @@ interface AuthParams {
   state: string | null;
   scope: string | null;
   nonce: string | null;
-  code_challenge: string | null;
-  code_challenge_method: string | null;
+  clientId: string | null;
+  redirectUri: string | null;
+  responseType: string | null;
+  codeChallenge: string | null;
+  codeChallengeMethod: string | null;
 }
 
 const LoginPage: React.FC = () => {
   const location = useLocation();
-  const [params, setParams] = useState<AuthParams>({
-    state: null,
-    scope: null,
-    nonce: null,
-    code_challenge: null,
-    code_challenge_method: null,
-  });
+  const [_, setParams] = useState<AuthParams>();
   const [isValid, setIsValid] = useState<boolean>(false);
   const [isChecking, setIsChecking] = useState<boolean>(true);
 
@@ -28,8 +25,11 @@ const LoginPage: React.FC = () => {
       state: searchParams.get("state"),
       scope: searchParams.get("scope"),
       nonce: searchParams.get("nonce"),
-      code_challenge: searchParams.get("code_challenge"),
-      code_challenge_method: searchParams.get("code_challenge_method"),
+      clientId: searchParams.get("client_id"),
+      redirectUri: searchParams.get("redirect_uri"),
+      responseType: searchParams.get("response_type"),
+      codeChallenge: searchParams.get("code_challenge"),
+      codeChallengeMethod: searchParams.get("code_challenge_method"),
     };
 
     setParams(extractedParams);
@@ -37,15 +37,15 @@ const LoginPage: React.FC = () => {
   }, [location]);
 
   const validateParams = (params: AuthParams) => {
-    const { state, scope, nonce, code_challenge, code_challenge_method } = params;
-
-    const hasRequiredParams = Boolean(
-      state && scope && nonce && code_challenge && code_challenge_method
+    const hasRequiredParams = Object.values(params).every(
+      (val) => val !== undefined && val !== null && val !== ""
     );
 
-    const isCodeChallengeMethodValid = code_challenge_method === "S256";
+    const isCodeChallengeMethodValid = params.codeChallengeMethod === "S256";
     const isScopeValid =
-      scope?.includes("openid") && scope?.includes("profile") && scope?.includes("email");
+      params?.scope?.includes("openid") &&
+      params?.scope?.includes("profile") &&
+      params.scope?.includes("email");
 
     const isValid = hasRequiredParams && isCodeChallengeMethodValid && isScopeValid;
 
