@@ -1,10 +1,8 @@
-import { Loader } from "@common/shared/Loader";
-import { ErrorMessage } from "@common/shared/ErrorMessage";
-import { PageLayout } from "@common/shared/PageLayout";
-import { useAuthParams } from "@/shared/hooks/useAuthParams";
+import { PageLayout, Loader, ErrorMessage } from "@common/shared/ui";
 import { AuthForm } from "@/widgets/AuthForm/AuthForm";
+import { useAuthParams } from "./model/hooks/useAuthParams";
 
-export const LoginPage: React.FC = () => {
+export const Login: React.FC = () => {
   const { status, errors, responseData } = useAuthParams();
 
   return (

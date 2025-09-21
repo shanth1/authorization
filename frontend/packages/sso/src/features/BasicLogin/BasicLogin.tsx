@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Input } from "@common/shared/Input";
+import { Input } from "@common/shared/ui";
 
 export const BasicLogin = () => {
   const [email, setEmail] = useState("");

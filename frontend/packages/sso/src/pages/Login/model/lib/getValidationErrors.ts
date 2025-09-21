@@ -1,4 +1,4 @@
-import { AuthParams } from "../../entities/auth/model/types";
+import { AuthParams } from "@/entities/auth/model/types";
 import { REQUIRED_SCOPES, VALID_CODE_CHALLENGE_METHOD } from "../config/auth";
 
 VALID_CODE_CHALLENGE_METHOD;
