@@ -19,7 +19,7 @@
     "paths": {
       "@common/*": ["packages/common/src/*"]
     },
-    "types": ["node"]
+    "types": ["node", "vite/client"]
   },
   "include": ["packages/*/src", "vite.config.ts"]
 }

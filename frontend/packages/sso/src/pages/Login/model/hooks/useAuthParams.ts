@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { AuthParams, AuthState } from "@/entities/auth/model/types";
 import { getValidationErrors } from "../lib/getValidationErrors";
+const apiBasePath = import.meta.env.VITE_API_BASE_PATH; // "/api/v1"
 
 export const useAuthParams = (): AuthState => {
   const location = useLocation();
@@ -38,15 +39,25 @@ export const useAuthParams = (): AuthState => {
       }
 
       try {
-        // TODO: Replace with real API request
-        const mockServerResponse: { providers: string[] } = await new Promise((resolve) =>
-          setTimeout(() => resolve({ providers: ["Google", "GitHub", "Telegram"] }), 1000)
-        );
+        const response = await fetch(apiBasePath + "/authorize", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({}),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
         setAuthState({
           status: "success",
           errors: [],
           params: extractedParams,
-          responseData: mockServerResponse,
+          responseData: data,
         });
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
