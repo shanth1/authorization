@@ -16,7 +16,7 @@ type PKCE struct {
 
 // AuthorizationCode is generated after successful user authentication and provider validation.
 // needed for subsequent exchange for a token
-type AuthorizatoinCode struct {
+type AuthorizationCode struct {
 	Code        string    `json:"code"`
 	SessionID   SessionID `json:"session_id"`
 	UserID      UserID    `json:"user_id"`
