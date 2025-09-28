@@ -4,7 +4,9 @@ import "time"
 
 type TokenID string
 type JTI string
+type URL string
 
+// AccessToken used for requests to protected resources
 type AccessToken struct {
 	ID        TokenID   `json:"id"`
 	UserID    UserID    `json:"user_id"`
@@ -15,6 +17,7 @@ type AccessToken struct {
 	JTI       JTI       `json:"jti"`
 }
 
+// RefreshToken used to obtain a new access/refresh token pair without re-authenticating the user
 type RefreshToken struct {
 	ID          TokenID   `json:"id"`
 	UserID      UserID    `json:"user_id"`
@@ -26,25 +29,27 @@ type RefreshToken struct {
 	JTI         JTI       `json:"jti"`
 }
 
+// IDTokenClaims is a JWT that verifies the user's identity for the client backend
 type IDTokenClaims struct {
-	Issuer        string    `json:"issuer"`
-	Subject       string    `json:"subject"`
-	Audience      string    `json:"audience"`
-	Expires       time.Time `json:"expires"`
-	IssuedAt      time.Time `json:"issued_at"`
-	Nonce         *Nonce    `json:"nonce"`
-	Email         *string   `json:"email"`
-	EmailVerified *bool     `json:"email_verified"`
-	Name          *string   `json:"name"`
-	Picture       *string   `json:"picture"`
+	Issuer        URL        `json:"iss"` // Authorization server URL
+	Subject       UserID     `json:"sub"`
+	Audience      []ClientID `json:"aud"`
+	Expires       time.Time  `json:"exp"`
+	IssuedAt      time.Time  `json:"iat"`
+	AuthTime      time.Time  `json:"auth_time"`
+	Nonce         *Nonce     `json:"nonce"`
+	Email         *string    `json:"email"`
+	EmailVerified *bool      `json:"email_verified"`
+	Name          *string    `json:"name"`
+	Picture       *string    `json:"picture"`
 }
 
 type LogoutTokenClaims struct {
-	Issuer   string         `json:"issuer"`
-	Subject  string         `json:"subject"`
-	Audience string         `json:"audience"`
-	IssuedAt time.Time      `json:"issued_at"`
-	JTI      JTI            `json:"jti"`
-	Events   map[string]any `json:"events"` // per OIDC logout event
-	SID      *string        `json:"sid"`    // optional session id
+	Issuer    URL            `json:"iss"` // Authorization server URL
+	Audience  string         `json:"aud"`
+	IssuedAt  time.Time      `json:"iat"`
+	JTI       JTI            `json:"jti"`           // Unique JWT identifier to prevent reuse
+	Events    map[string]any `json:"events"`        // per OIDC logout event
+	Subject   *UserID        `json:"sub,omitempty"` // [optional] required if session id is not specified
+	SessionID *SessionID     `json:"sid,omitempty"` // [optional] required if subject is not specified
 }
