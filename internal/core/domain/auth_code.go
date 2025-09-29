@@ -2,6 +2,7 @@ package domain
 
 import "time"
 
+type Code string
 type CodeChallengeMethod string // Method for generating code_challenge from code_verifier
 
 const (
@@ -17,7 +18,7 @@ type PKCE struct {
 // AuthorizationCode is generated after successful user authentication and provider validation.
 // needed for subsequent exchange for a token
 type AuthorizationCode struct {
-	Code        string    `json:"code"`
+	Code        Code      `json:"code"`
 	SessionID   SessionID `json:"session_id"` // ID of the original authorization session
 	UserID      UserID    `json:"user_id"`
 	ClientID    ClientID  `json:"client_id"`
