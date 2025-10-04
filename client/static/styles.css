@@ -1,0 +1,44 @@
+body {
+	font-family: Arial, sans-serif;
+	max-width: 600px;
+	margin: 0 auto;
+	padding: 20px;
+}
+h1 {
+	text-align: center;
+}
+#login-btn {
+	display: block;
+	width: 100%;
+	padding: 10px;
+	background: #007bff;
+	color: white;
+	border: none;
+	cursor: pointer;
+}
+#login-btn:hover {
+	background: #0056b3;
+}
+#user-info {
+	margin-top: 20px;
+	display: none;
+}
+#logout-btn {
+	width: 100%;
+	padding: 10px;
+	background: #dc3545;
+	color: white;
+	border: none;
+	cursor: pointer;
+}
+#logout-btn:hover {
+	background: #c82333;
+}
+.loader {
+	text-align: center;
+	margin: 20px 0;
+	font-size: 18px;
+}
+.hidden {
+	display: none;
+}

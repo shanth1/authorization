@@ -1,20 +1,31 @@
 .PHONY: build
 
 AUTH_BINARY_NAME=auth
-BOT_BINARY_NAME=bot
+CLIENT_BINARY_NAME=client
 
-auth-build:
-	@echo "Building auth application..."
-	@go build -o ./build/$(AUTH_BINARY_NAME) ./cmd/auth/main.go
-
-bot-build:
-	@echo "Building bot application..."
-	@go build -o ./build/$(BOT_BINARY_NAME) ./cmd/bot/main.go
-
+# ===== BACKEND =====
 run-auth-local: auth-build
 	@echo "Running in LOCAL mode..."
-	@./build/$(AUTH_BINARY_NAME) --env-path=.env --config-path=./config/auth/local.yaml
+	@./build/$(AUTH_BINARY_NAME) --env-path=.env --config-path=./config/local.yaml
 
-run-bot-local: bot-build
-	@echo "Running BOT in LOCAL mode..."
-	@./build/$(BOT_BINARY_NAME) --env-path=.env
+run-client-example: client-build
+	@./build/$(CLIENT_BINARY_NAME) --env-path=.client.env --config-path=./client/config/config.yaml
+# ==================
+
+# ==== FRONTEND =====
+run-sso-dev:
+	@cd frontend && pnpm run dev:sso
+
+run-portal-dev:
+	@cd frontend && pnpm run dev:portal
+# ===================
+
+# ===== COMMON =====
+auth-build:
+	@echo "Building auth application..."
+	@go build -o ./build/$(AUTH_BINARY_NAME) ./cmd/main.go
+
+client-build:
+	@echo "Building client application..."
+	@go build -o ./build/$(CLIENT_BINARY_NAME) ./client/cmd/main.go
+# ==================
