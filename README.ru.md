@@ -101,70 +101,84 @@
     - **Тип**: `GET`
     - **URL**: `https://api.auth.oidc.com/authorize?response_type=code&client_id=...&redirect_uri=...&scope=openid%20profile&state=...&nonce=...&code_challenge=...&code_challenge_method=S256`
 
-#### 2.2. Обработка запроса на `/authorize` (Исправленная логика)
+2.2. Обработка запроса на /authorize
+Описание: AuthBack получает GET запрос на /authorize. Это единая точка входа.
+Логика AuthBack (Handler):
+ШАГ 1: Проверка SSO-сессии.
+Пытается прочитать cookie user_session_id из запроса.
+Если cookie есть: вызывает UserSessionRepository.Get() для валидации.
+Если сессия валидна: Это Сценарий Б. Пользователь уже аутентифицирован. Переходим к Шагу 2.4.
+Если сессия невалидна: Удаляем cookie. Переходим к Сценарию А.
+Если cookie нет: Это Сценарий А. Пользователь не аутентифицирован.
+ШАГ 2 (Сценарий А): Инициация потока.
+Вызов сервиса: Хендлер вызывает AuthorizationService.StartAuthorizationFlow со всеми параметрами из URL.
+Логика AuthorizationService.StartAuthorizationFlow:
+a. Использует ClientRepository.Get() для получения клиента по client_id.
+b. Валидация: Проверяет, что redirect_uri зарегистрирован для клиента, response_type и scope разрешены. Если нет — возвращает ошибку (ErrInvalidRedirectURI и т.д.).
+c. Использует Random.NewID() для генерации SessionID (это будет request_id).
+d. Создает объект domain.AuthorizationSession, заполняя его проверенными параметрами (ClientID, State, Nonce, PKCE и т.д.).
+e. Использует AuthorizationSessionRepository.Save() для сохранения сессии в Redis с TTL ~10 минут.
+f. Возвращает сгенерированный SessionID.
+Ответ (Handler): Получив SessionID от сервиса, хендлер формирует URL для редиректа.
+HTTP 302 Location: https://sso.auth.oidc.com?request_id=<session_id>
 
-1.  **Описание**: `AuthBack` получает `GET` запрос на `/authorize`. Это единая точка входа, которая должна определить, залогинен ли пользователь в SSO-сессии.
-2.  **Логика `/authorize`**:
-    - **ШАГ 1: Проверка SSO-сессии.**
-      - Бэкенд пытается прочитать cookie `user_session_id` из запроса.[1][2]
-      - Если cookie есть, он валидирует ее значение в Redis.
-      - **Если cookie найдена и валидна**: Это **Сценарий Б**. Пользователь уже аутентифицирован. Переходим к **Шагу 2.4**.
-      - **Если cookie не найдена или невалидна**: Это **Сценарий А**. Пользователь не аутентифицирован. Выполняем следующие шаги.
-    - **ШАГ 2 (Только для Сценария А): Обработка нового входа.**
-      - Валидируем параметры из URL: `client_id` существует, `redirect_uri` совпадает с зарегистрированным и т.д.
-      - Генерируем `request_id`.
-      - **Сохраняем в Redis**: `auth_request:<request_id>` со всеми параметрами изначального запроса (`client_id`, `scope`, `nonce`, `code_challenge` и др.). TTL ~ 10 минут.[3]
-      - **Ответ**: Редирект на страницу входа с `request_id`.
-        - `HTTP 302 Location: https://sso.auth.oidc.com?request_id=<request_id>`
+2.3. Аутентификация на AuthFrontSSO
+Действие: Пользователь на sso.auth.oidc.com.
+Запрос AuthFrontSSO -> AuthBack для получения провайдеров (без изменений): GET /api/v1/auth/providers?request_id=...
+Действие: Пользователь вводит логин/пароль.
+Запрос AuthFrontSSO -> AuthBack для логина: POST /api/v1/auth/login/password с email, password.
+Логика AuthBack (Handler + Service):
+Вызов сервиса: Хендлер вызывает AuthenticationService.AuthenticateWithPassword(ctx, email, password).
+Логика AuthenticationService.AuthenticateWithPassword:
+a. Использует UserRepository.GetByEmail() для поиска пользователя.
+b. Использует PasswordHasher.Verify() для проверки пароля. Если неверно — ошибка.
+c. Если успешно, создает domain.UserSession, генерируя UserSessionID.
+d. Использует UserSessionRepository.Save() для сохранения SSO-сессии в Redis с TTL (например, 24 часа).
+e. Публикует событие: EventPublisher.Publish(ctx, UserLoggedIn{...}).
+f. Возвращает созданный UserSession.
+Ответ (Handler): Получив UserSession от сервиса, хендлер устанавливает cookie.
+HTTP 200 OK с заголовком Set-Cookie: user_session_id=<user_session_id>; HttpOnly; Secure; ....
+Действие AuthFrontSSO: Получив 200 OK, фронтенд знает, что аутентификация успешна. Он берет request_id из своего состояния и делает редирект для завершения потока.
+Редирект: HTTP 302 Location: https://api.auth.oidc.com/authorize?request_id=<request_id>
 
-#### 2.3. Аутентификация на `AuthFrontSSO` (Дополненная логика)
+2.4. Выдача Authorization Code (Сценарий Б и возврат после Сценария А)
+Описание: AuthBack получает запрос на /authorize. В запросе либо request_id в URL (после аутентификации), либо только user_session_id cookie (уже был залогинен). Важно: если есть request_id, он имеет приоритет.
+Логика AuthBack (Handler + Service):
+Хендлер извлекает sessionID (request_id) из URL и userSessionID из cookie.
+Вызов сервиса: Хендлер вызывает AuthorizationService.CompleteAuthorizationFlow(ctx, sessionID, userSessionID).
+Логика AuthorizationService.CompleteAuthorizationFlow:
+a. Использует UserSessionRepository.Get() для валидации userSessionID и получения UserID.
+b. Использует AuthorizationSessionRepository.Get() для получения исходных параметров запроса по sessionID.
+c. Валидация: Проверяет, что сессии существуют и не истекли.
+d. (Опционально: проверка согласия - Consent).
+e. Генерирует auth_code (Random.Bytes()).
+f. Создает объект domain.AuthorizationCode, заполняя его данными из AuthorizationSession и UserSession (UserID, ClientID, Scope, Nonce, PKCE и т.д.).
+g. Использует AuthorizationCodeRepository.Save() для сохранения кода в Redis с TTL ~ 1 минута.
+h. Использует AuthorizationSessionRepository.Delete() для удаления исходной сессии авторизации (она больше не нужна).
+i. Формирует и возвращает финальный redirect_uri (например, https://app.client.com/auth/callback?code=...&state=...).
+Ответ (Handler): Получив URL от сервиса, делает редирект.
+HTTP 302 Location: <url_from_service>
 
-1.  **Действие**: `User` попадает на страницу `sso.auth.oidc.com`.
-2.  **Запрос `AuthFrontSSO` -> `AuthBack` для получения провайдеров (НОВЫЙ ШАГ)**:
-    - **Описание**: Фронтенд `AuthFrontSSO` должен отобразить правильные способы входа.
-    - **Тип**: `GET`
-    - **URL**: `https://api.auth.oidc.com/api/v1/auth/providers?request_id=<request_id>` (где `request_id` взят из URL).
-    - **Логика `AuthBack`**: `AuthBack` по `request_id` находит в Redis `auth_request`, из него берет `client_id` и возвращает список провайдеров, разрешенных для этого клиента.
-    - **Ответ**: `HTTP 200 OK` с JSON: `["password", "google"]`.
-3.  **Действие**: `AuthFrontSSO` рендерит кнопки "Войти через Google" и форму для ввода пароля. Пользователь вводит логин/пароль.
-4.  **Запрос `AuthFrontSSO` -> `AuthBack` для логина**:
-    - **Тип**: `POST`
-    - **URL**: `https://api.auth.oidc.com/api/v1/auth/login/password`
-    - **Тело**: `{"email": "...", "password": "...", "request_id": "..."}`
-5.  **Логика `AuthBack`**:
-    - Проверяет учетные данные.
-    - Генерирует `session_id`.
-    - **Сохраняет в Redis**: `user_session:<session_id>` с `user_id`.
-    - **Ответ `AuthBack` -> `AuthFrontSSO`**: `HTTP 200 OK` с заголовком `Set-Cookie: user_session_id=<session_id>; ...`.
-6.  **Действие `AuthFrontSSO`**: Получив `200 OK`, `AuthFrontSSO` понимает, что пользователь успешно аутентифицирован. Теперь нужно вернуться в основной поток авторизации.
-    - **Редирект**: `HTTP 302 Location: https://api.auth.oidc.com/authorize?request_id=<request_id>`
+2.5. Обмен кода на токены
+Логика ClientFront (без изменений): Проверяет state, отправляет code на ClientBack.
+Запрос ClientBack -> AuthBack (без изменений): POST /token.
+Логика AuthBack (/token Handler + Service):
+Хендлер аутентифицирует клиента (например, по client_id и client_secret из тела запроса). Если успешно, получает объект domain.Client.
+Вызов сервиса: Хендлер вызывает TokenService.IssueTokensFromAuthCode(ctx, params).
+Логика TokenService.IssueTokensFromAuthCode:
+a. Использует AuthorizationCodeRepository.Get() для получения данных кода. Важно, чтобы эта операция была атомарной (get-and-delete или get-and-mark-used), чтобы предотвратить race condition. Проверяет, что код не использован и не истек.
+b. Валидация: Сравнивает redirect_uri и ClientID из запроса с теми, что сохранены в коде.
+c. Использует PKCEService.Verify() для проверки code_verifier против code_challenge.
+d. Использует UserRepository.Get() для получения данных пользователя (UserID есть в коде).
+e. Генерация токенов:
 
-#### 2.4. Выдача Authorization Code
-
-1.  **Описание**: `AuthBack` снова получает запрос на `/authorize`, но теперь с `user_session_id` cookie.
-2.  **Логика `/authorize`**:
-    - Извлекает `request_id`, находит `auth_request` в Redis.
-    - Проверяет cookie, находит `user_session`, получает `user_id`.
-    - _(Опционально: если клиент `third-party`, здесь может быть проверка и показ экрана Consent)_.
-    - Генерирует `auth_code`.
-    - **Сохраняет в Redis**: `auth_code:<code>` (одноразовый код, связанный с `user_id`, `client_id`, `code_challenge` и т.д.). TTL ~ 1 минута.[13]
-3.  **Ответ**: Редирект браузера на `ClientFront` с кодом.
-    - `HTTP 302 Location: https://app.client.com/auth/callback?code=...&state=...`
-
-#### 2.5. Обмен кода на токены
-
-1.  **Логика `ClientFront`**: Проверяет `state`. Отправляет `code` на свой бэкенд.
-2.  **Запрос `ClientBack` -> `AuthBack`**:
-    - **Тип**: `POST` (сервер-сервер)
-    - **URL**: `https://api.auth.oidc.com/token`
-    - **Тело (form-urlencoded)**: `grant_type=authorization_code&code=...&redirect_uri=...&client_id=...&client_secret=...&code_verifier=...`
-3.  **Логика `AuthBack` (`/token`)**:
-    - Аутентифицирует клиента по `client_id` и `client_secret`.
-    - Находит и удаляет `auth_code` из Redis (он одноразовый).
-    - **Проверяет PKCE**: хеширует `code_verifier` и сравнивает с `code_challenge`.
-    - Генерирует `access_token`, `refresh_token`, `id_token`.
-    - **Сохраняет в Redis**: `refresh_token:<jti>` для возможности отзыва.
-4.  **Ответ `AuthBack` -> `ClientBack`**: `HTTP 200 OK` с JSON, содержащим все токены.
+- Создает access_token, refresh_token.
+- Создает IDTokenClaims, заполняя iss, sub, aud, nonce (из AuthorizationCode), auth_time и т.д.
+- Использует JWTSigner.SignIDToken() для подписи id_token.
+  f. Использует TokenRepository.SaveRefresh() для сохранения refresh_token (или его JTI) для возможности отзыва.
+  g. Публикует событие EventPublisher.Publish(ctx, TokensIssued{...}).
+  h. Возвращает TokenResponse со всеми токенами и expires_in.
+  Ответ (Handler): Форматирует ответ сервиса в JSON и отправляет HTTP 200 OK.
 
 #### 2.6. Создание сессии в `ClientApp`
 
