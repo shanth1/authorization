@@ -12,7 +12,7 @@ type UserLoggedIn struct {
 	UserID    UserID
 	ClientID  ClientID
 	Provider  Provider
-	SessionID SessionID
+	SessionID UserSessionID
 }
 
 func (e UserLoggedIn) EventName() string     { return "UserLoggedIn" }

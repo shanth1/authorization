@@ -12,20 +12,20 @@ import (
 
 type authSessionRepo struct {
 	mu       sync.RWMutex
-	sessions map[domain.SessionID]*domain.AuthorizationSession
+	sessions map[domain.RequestID]*domain.AuthorizationRequest
 	stopChan chan struct{}
 }
 
 func NewAuthSessionRepo(cleanupInterval time.Duration) *authSessionRepo {
 	repo := &authSessionRepo{
-		sessions: make(map[domain.SessionID]*domain.AuthorizationSession),
+		sessions: make(map[domain.RequestID]*domain.AuthorizationRequest),
 		stopChan: make(chan struct{}),
 	}
 
 	return repo
 }
 
-func (r *authSessionRepo) Get(ctx context.Context, id domain.SessionID) (*domain.AuthorizationSession, error) {
+func (r *authSessionRepo) Get(ctx context.Context, id domain.RequestID) (*domain.AuthorizationRequest, error) {
 	r.mu.RLock()
 	session, exists := r.sessions[id]
 	r.mu.RUnlock()
@@ -45,7 +45,7 @@ func (r *authSessionRepo) Get(ctx context.Context, id domain.SessionID) (*domain
 	return &sessionCopy, nil
 }
 
-func (r *authSessionRepo) Save(ctx context.Context, s *domain.AuthorizationSession, ttl time.Duration) error {
+func (r *authSessionRepo) Save(ctx context.Context, s *domain.AuthorizationRequest, ttl time.Duration) error {
 	if s.ID == "" {
 		return errors.New("empty id")
 	}
@@ -61,7 +61,7 @@ func (r *authSessionRepo) Save(ctx context.Context, s *domain.AuthorizationSessi
 	return nil
 }
 
-func (r *authSessionRepo) Delete(ctx context.Context, id domain.SessionID) error {
+func (r *authSessionRepo) Delete(ctx context.Context, id domain.RequestID) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 

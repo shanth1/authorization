@@ -19,14 +19,17 @@ type AccessToken struct {
 
 // RefreshToken used to obtain a new access/refresh token pair without re-authenticating the user
 type RefreshToken struct {
-	ID          TokenID   `json:"id"`
-	UserID      UserID    `json:"user_id"`
-	ClientID    ClientID  `json:"client_id"`
-	Scope       []Scope   `json:"scope"`
-	ExpiresAt   time.Time `json:"expires_at"`
-	IssuedAt    time.Time `json:"issued_at"`
-	RotatedFrom *TokenID  `json:"rotated_from"` // reference to the old refresh token
-	JTI         JTI       `json:"jti"`
+	ID            TokenID       `json:"id"`
+	UserID        UserID        `json:"user_id"`
+	ClientID      ClientID      `json:"client_id"`
+	UserSessionID UserSessionID `json:"user_session_id"`
+	Scope         []Scope       `json:"scope"`
+	ExpiresAt     time.Time     `json:"expires_at"`
+	IssuedAt      time.Time     `json:"issued_at"`
+	RotatedFrom   *TokenID      `json:"rotated_from"` // reference to the old refresh token
+	JTI           JTI           `json:"jti"`
+	Revoked       bool          `json:"revoked"`
+	RevokedAt     *time.Time    `json:"revoked_at"`
 }
 
 // IDTokenClaims is a JWT that verifies the user's identity for the client backend
@@ -51,5 +54,5 @@ type LogoutTokenClaims struct {
 	JTI       JTI            `json:"jti"`           // Unique JWT identifier to prevent reuse
 	Events    map[string]any `json:"events"`        // per OIDC logout event
 	Subject   *UserID        `json:"sub,omitempty"` // [optional] required if session id is not specified
-	SessionID *SessionID     `json:"sid,omitempty"` // [optional] required if subject is not specified
+	SessionID *UserSessionID `json:"sid,omitempty"` // [optional] required if subject is not specified
 }
